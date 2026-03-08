@@ -1,31 +1,33 @@
 using AutoMapper;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Interfaces.Repositories;
-using BasicBilling.API.Application.Interfaces.Services;
 using BasicBilling.API.Domain.Entities;
 using BasicBilling.API.Domain.Enums;
+using MediatR;
 
-namespace BasicBilling.API.Application.Services;
+namespace BasicBilling.API.Application.Features.Payments.Commands;
 
-public class PaymentService : IPaymentService
+public record ProcessPaymentCommand(PaymentRequestDto Dto) : IRequest<PaymentDto>;
+
+public class ProcessPaymentHandler : IRequestHandler<ProcessPaymentCommand, PaymentDto>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public PaymentService(IUnitOfWork unitOfWork, IMapper mapper)
+    public ProcessPaymentHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
 
-    public async Task<PaymentDto> ProcessPaymentAsync(PaymentRequestDto dto)
+    public async Task<PaymentDto> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
     {
-        var clientExists = await _unitOfWork.Clients.ExistsAsync(dto.ClientId);
+        var clientExists = await _unitOfWork.Clients.ExistsAsync(request.Dto.ClientId);
         if (!clientExists)
-            throw new KeyNotFoundException($"Client with ID {dto.ClientId} not found.");
+            throw new KeyNotFoundException($"Client with ID {request.Dto.ClientId} not found.");
 
         var bill = await _unitOfWork.Bills.GetByClientServiceAndPeriodAsync(
-            dto.ClientId, dto.ServiceType, dto.Period);
+            request.Dto.ClientId, request.Dto.ServiceType, request.Dto.Period);
 
         if (bill == null)
             throw new KeyNotFoundException("No bill found for the provided client, service type, and period.");
@@ -47,16 +49,5 @@ public class PaymentService : IPaymentService
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<PaymentDto>(payment);
-    }
-
-    public async Task<IEnumerable<PaymentDto>> GetPaymentHistoryByClientIdAsync(int clientId)
-    {
-        var clientExists = await _unitOfWork.Clients.ExistsAsync(clientId);
-        if (!clientExists)
-            throw new KeyNotFoundException($"Client with ID {clientId} not found.");
-
-        var payments = await _unitOfWork.Payments.GetPaymentsByClientIdAsync(clientId);
-
-        return _mapper.Map<IEnumerable<PaymentDto>>(payments);
     }
 }

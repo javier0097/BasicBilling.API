@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BasicBilling.API.Application.DTOs;
-using BasicBilling.API.Application.Interfaces.Services;
+using BasicBilling.API.Application.Features.Payments.Commands;
+using MediatR;
 
 namespace BasicBilling.API.Controllers;
 
@@ -12,11 +13,11 @@ namespace BasicBilling.API.Controllers;
 [Produces("application/json")]
 public class PaymentsController : ControllerBase
 {
-    private readonly IPaymentService _paymentService;
+    private readonly IMediator _mediator;
 
-    public PaymentsController(IPaymentService paymentService)
+    public PaymentsController(IMediator mediator)
     {
-        _paymentService = paymentService;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -29,7 +30,7 @@ public class PaymentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ProcessPayment([FromBody] PaymentRequestDto dto)
     {
-        var payment = await _paymentService.ProcessPaymentAsync(dto);
+        var payment = await _mediator.Send(new ProcessPaymentCommand(dto));
         return Ok(payment);
     }
 }

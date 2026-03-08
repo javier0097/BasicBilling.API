@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BasicBilling.API.Application.DTOs;
-using BasicBilling.API.Application.Interfaces.Services;
+using BasicBilling.API.Application.Features.Bills.Commands;
+using MediatR;
 
 namespace BasicBilling.API.Controllers;
 
@@ -12,11 +13,11 @@ namespace BasicBilling.API.Controllers;
 [Produces("application/json")]
 public class BillsController : ControllerBase
 {
-    private readonly IBillService _billService;
+    private readonly IMediator _mediator;
 
-    public BillsController(IBillService billService)
+    public BillsController(IMediator mediator)
     {
-        _billService = billService;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -28,7 +29,7 @@ public class BillsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateBill([FromBody] CreateBillDto dto)
     {
-        var bill = await _billService.CreateBillAsync(dto);
+        var bill = await _mediator.Send(new CreateBillCommand(dto));
         return CreatedAtAction(nameof(CreateBill), new { id = bill.Id }, bill);
     }
 }

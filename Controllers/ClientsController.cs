@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using BasicBilling.API.Application.DTOs;
-using BasicBilling.API.Application.Interfaces.Services;
+using BasicBilling.API.Application.Features.Bills.Queries;
+using BasicBilling.API.Application.Features.Payments.Queries;
+using MediatR;
 
 namespace BasicBilling.API.Controllers;
 
@@ -12,13 +14,11 @@ namespace BasicBilling.API.Controllers;
 [Produces("application/json")]
 public class ClientsController : ControllerBase
 {
-    private readonly IBillService _billService;
-    private readonly IPaymentService _paymentService;
+    private readonly IMediator _mediator;
 
-    public ClientsController(IBillService billService, IPaymentService paymentService)
+    public ClientsController(IMediator mediator)
     {
-        _billService = billService;
-        _paymentService = paymentService;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public class ClientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPendingBills(int id)
     {
-        var bills = await _billService.GetPendingBillsByClientIdAsync(id);
+        var bills = await _mediator.Send(new GetPendingBillsQuery(id));
         return Ok(bills);
     }
 
@@ -41,7 +41,7 @@ public class ClientsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPaymentHistory(int id)
     {
-        var payments = await _paymentService.GetPaymentHistoryByClientIdAsync(id);
+        var payments = await _mediator.Send(new GetPaymentHistoryQuery(id));
         return Ok(payments);
     }
 }
