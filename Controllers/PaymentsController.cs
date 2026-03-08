@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Features.Payments.Commands;
@@ -8,6 +9,7 @@ namespace BasicBilling.API.Controllers;
 /// <summary>
 /// Handles bill payment processing.
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]

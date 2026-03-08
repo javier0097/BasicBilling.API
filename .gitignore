@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# Development settings with secrets
+appsettings.Development.json
+
 # SQLite database files
 *.db
 *.db-shm
