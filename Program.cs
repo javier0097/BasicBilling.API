@@ -7,11 +7,25 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi;
+using BasicBilling.API.Domain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+var modelBuilder = new ODataConventionModelBuilder();
+modelBuilder.EntitySet<Bill>("Bills");
+modelBuilder.EntitySet<Payment>("Payments");
+
+builder.Services.AddControllers()
+    .AddOData(options => options
+        .AddRouteComponents("api", modelBuilder.GetEdmModel())
+        .Select()
+        .Filter()
+        .OrderBy()
+        .SetMaxTop(100)
+        .Count());
 
 builder.Services.AddSwaggerGen(options =>
 {

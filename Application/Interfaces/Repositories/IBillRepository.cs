@@ -5,6 +5,6 @@ namespace BasicBilling.API.Application.Interfaces.Repositories;
 
 public interface IBillRepository : IBaseRepository<Bill>
 {
-    Task<IEnumerable<Bill>> GetPendingBillsByClientIdAsync(int clientId);
+    IQueryable<Bill> GetPendingBillsByClientId(int clientId);
     Task<Bill?> GetByClientServiceAndPeriodAsync(int clientId, ServiceType serviceType, string period);
 }

@@ -1,13 +1,14 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Interfaces.Repositories;
 using MediatR;
 
 namespace BasicBilling.API.Application.Features.Bills.Queries;
 
-public record GetPendingBillsQuery(int ClientId) : IRequest<IEnumerable<BillDto>>;
+public record GetPendingBillsQuery(int ClientId) : IRequest<IQueryable<BillDto>>;
 
-public class GetPendingBillsHandler : IRequestHandler<GetPendingBillsQuery, IEnumerable<BillDto>>
+public class GetPendingBillsHandler : IRequestHandler<GetPendingBillsQuery, IQueryable<BillDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
@@ -18,14 +19,14 @@ public class GetPendingBillsHandler : IRequestHandler<GetPendingBillsQuery, IEnu
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<BillDto>> Handle(GetPendingBillsQuery request, CancellationToken cancellationToken)
+    public async Task<IQueryable<BillDto>> Handle(GetPendingBillsQuery request, CancellationToken cancellationToken)
     {
         var clientExists = await _unitOfWork.Clients.ExistsAsync(request.ClientId);
         if (!clientExists)
             throw new KeyNotFoundException($"Client with ID {request.ClientId} not found.");
 
-        var bills = await _unitOfWork.Bills.GetPendingBillsByClientIdAsync(request.ClientId);
-
-        return _mapper.Map<IEnumerable<BillDto>>(bills);
+        return _unitOfWork.Bills
+            .GetPendingBillsByClientId(request.ClientId)
+            .ProjectTo<BillDto>(_mapper.ConfigurationProvider);
     }
 }

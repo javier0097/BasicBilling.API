@@ -1,13 +1,14 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Interfaces.Repositories;
 using MediatR;
 
 namespace BasicBilling.API.Application.Features.Payments.Queries;
 
-public record GetPaymentHistoryQuery(int ClientId) : IRequest<IEnumerable<PaymentDto>>;
+public record GetPaymentHistoryQuery(int ClientId) : IRequest<IQueryable<PaymentDto>>;
 
-public class GetPaymentHistoryHandler : IRequestHandler<GetPaymentHistoryQuery, IEnumerable<PaymentDto>>
+public class GetPaymentHistoryHandler : IRequestHandler<GetPaymentHistoryQuery, IQueryable<PaymentDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
@@ -18,14 +19,14 @@ public class GetPaymentHistoryHandler : IRequestHandler<GetPaymentHistoryQuery, 
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<PaymentDto>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
+    public async Task<IQueryable<PaymentDto>> Handle(GetPaymentHistoryQuery request, CancellationToken cancellationToken)
     {
         var clientExists = await _unitOfWork.Clients.ExistsAsync(request.ClientId);
         if (!clientExists)
             throw new KeyNotFoundException($"Client with ID {request.ClientId} not found.");
 
-        var payments = await _unitOfWork.Payments.GetPaymentsByClientIdAsync(request.ClientId);
-
-        return _mapper.Map<IEnumerable<PaymentDto>>(payments);
+        return _unitOfWork.Payments
+            .GetPaymentsByClientId(request.ClientId)
+            .ProjectTo<PaymentDto>(_mapper.ConfigurationProvider);
     }
 }
