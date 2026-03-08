@@ -15,7 +15,7 @@ public class BillRepository : BaseRepository<Bill>, IBillRepository
     public async Task<IEnumerable<Bill>> GetPendingBillsByClientIdAsync(int clientId)
     {
         return await _dbSet
-            .Where(b => b.ClientId == clientId && b.Status == "Pending")
+            .Where(b => b.ClientId == clientId && b.Status == BillStatus.Pending)
             .ToListAsync();
     }
 

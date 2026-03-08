@@ -29,9 +29,12 @@ public class BillingDbContext : DbContext
             .WithOne(p => p.Bill)
             .HasForeignKey<Payment>(p => p.BillId);
 
-        // Store ServiceType enum as string in the database
         modelBuilder.Entity<Bill>()
             .Property(b => b.ServiceType)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<Bill>()
+            .Property(b => b.Status)
             .HasConversion<string>();
 
         // Seed Clients
@@ -64,7 +67,7 @@ public class BillingDbContext : DbContext
                         ServiceType = serviceType,
                         Period = period,
                         Amount = Math.Round((decimal)(random.NextDouble() * 150 + 10), 2),
-                        Status = "Pending"
+                        Status = BillStatus.Pending
                     });
                 }
             }

@@ -9,7 +9,7 @@ public class Bill
     public ServiceType ServiceType { get; set; }
     public string Period { get; set; } = string.Empty;
     public decimal Amount { get; set; }
-    public string Status { get; set; } = "Pending";
+    public BillStatus Status { get; set; } = BillStatus.Pending;
 
     public Client Client { get; set; } = null!;
     public Payment? Payment { get; set; }
