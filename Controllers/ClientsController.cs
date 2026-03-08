@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Features.Bills.Queries;
 using BasicBilling.API.Application.Features.Payments.Queries;
@@ -24,8 +25,9 @@ public class ClientsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves all pending bills for a specific client.
+    /// Retrieves all pending bills for a specific client. Supports OData query options.
     /// </summary>
+    [EnableQuery]
     [HttpGet("{id}/pending-bills")]
     [ProducesResponseType(typeof(IEnumerable<BillDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -36,8 +38,9 @@ public class ClientsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves the payment history for a specific client.
+    /// Retrieves the payment history for a specific client. Supports OData query options.
     /// </summary>
+    [EnableQuery]
     [HttpGet("{id}/payment-history")]
     [ProducesResponseType(typeof(IEnumerable<PaymentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

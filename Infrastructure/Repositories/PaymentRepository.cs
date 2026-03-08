@@ -11,12 +11,10 @@ public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
     {
     }
 
-    public async Task<IEnumerable<Payment>> GetPaymentsByClientIdAsync(int clientId)
+    public IQueryable<Payment> GetPaymentsByClientId(int clientId)
     {
-        return await _dbSet
+        return _dbSet
             .Include(p => p.Bill)
-            .Where(p => p.Bill.ClientId == clientId)
-            .OrderByDescending(p => p.PaymentDate)
-            .ToListAsync();
+            .Where(p => p.Bill.ClientId == clientId);
     }
 }
