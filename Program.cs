@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using BasicBilling.API.Infrastructure.Data;
 using BasicBilling.API.Application.Interfaces.Repositories;
 using BasicBilling.API.Infrastructure.Repositories;
+using BasicBilling.API.Infrastructure.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseHttpsRedirection();
 app.MapControllers();
 
