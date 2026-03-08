@@ -119,10 +119,9 @@ dotnet test BasicBilling.sln
 
 The practice specifies .NET 8 LTS. This project uses **.NET 10** for the following reasons:
 
+- **Tooling incompatibility**: Visual Studio Community 2026, the version currently installed on my machine, does not have full support for .NET 8 projects. It presents issues with project creation, templates, and debugging when targeting .NET 8. Installing Visual Studio Community 2022 (which does support .NET 8) would have required significant download and setup time that I preferred to invest in the actual implementation of the project.
 - **.NET 10 is the current version** at the time of development (March 2026), and .NET 8 packages are becoming outdated in the NuGet ecosystem. Several dependencies (EF Core, ASP.NET Core, Swagger) already target .NET 10 as their primary version.
-- **Full backward compatibility**: .NET 10 is fully compatible with all libraries and patterns required by the practice (MediatR, AutoMapper, OData, JWT, xUnit, etc.). No features were lost or changed in the migration.
-- **Demonstrates adaptability**: Using the latest stable framework shows the ability to work with current tooling rather than being locked into older versions. The architecture and patterns remain identical regardless of the runtime version.
-- **All required features are implemented**: The .NET version change does not affect any of the evaluated criteria. Every feature, pattern, and requirement from the practice specification is fully implemented.
+- **Full backward compatibility**: .NET 10 is fully compatible with all libraries and patterns required by the practice (MediatR, AutoMapper, OData, JWT, xUnit, etc.). No features were lost or changed. The architecture and patterns remain identical regardless of the runtime version.
 
 ## Features Checklist
 
