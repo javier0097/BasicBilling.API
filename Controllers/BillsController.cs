@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BasicBilling.API.Application.DTOs;
 using BasicBilling.API.Application.Features.Bills.Commands;
@@ -8,6 +9,7 @@ namespace BasicBilling.API.Controllers;
 /// <summary>
 /// Manages service bill operations.
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
