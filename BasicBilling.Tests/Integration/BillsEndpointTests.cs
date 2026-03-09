@@ -85,4 +85,26 @@ public class BillsEndpointTests : IClassFixture<CustomWebApplicationFactory>, IA
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    [Fact]
+    public async Task CreateBill_DuplicateBill_ReturnsConflict()
+    {
+        // Arrange
+        var dto = new CreateBillDto
+        {
+            ClientId = 100,
+            ServiceType = ServiceType.Electricity,
+            Period = "202506",
+            Amount = 250.00m
+        };
+
+        // Act - create the bill twice
+        var firstResponse = await _client.PostAsJsonAsync("/api/bills", dto);
+        Assert.Equal(HttpStatusCode.Created, firstResponse.StatusCode);
+
+        var secondResponse = await _client.PostAsJsonAsync("/api/bills", dto);
+
+        // Assert - second attempt should return 409 Conflict
+        Assert.Equal(HttpStatusCode.Conflict, secondResponse.StatusCode);
+    }
 }

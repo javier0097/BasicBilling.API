@@ -107,4 +107,38 @@ public class CreateBillHandlerTests
         _unitOfWorkMock.Verify(u => u.Bills.AddAsync(It.IsAny<Bill>()), Times.Once);
         _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_DuplicateBill_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var dto = new CreateBillDto
+        {
+            ClientId = 1,
+            ServiceType = ServiceType.Water,
+            Period = "202501",
+            Amount = 150.00m
+        };
+
+        _unitOfWorkMock.Setup(u => u.Clients.ExistsAsync(dto.ClientId))
+            .ReturnsAsync(true);
+
+        _unitOfWorkMock.Setup(u => u.Bills.GetByClientServiceAndPeriodAsync(
+                dto.ClientId, dto.ServiceType, dto.Period))
+            .ReturnsAsync(new Bill
+            {
+                Id = 1,
+                ClientId = dto.ClientId,
+                ServiceType = dto.ServiceType,
+                Period = dto.Period,
+                Amount = dto.Amount
+            });
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(new CreateBillCommand(dto), CancellationToken.None));
+
+        Assert.Contains("already exists", exception.Message);
+        _unitOfWorkMock.Verify(u => u.Bills.AddAsync(It.IsAny<Bill>()), Times.Never);
+    }
 }

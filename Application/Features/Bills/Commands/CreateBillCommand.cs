@@ -25,6 +25,12 @@ public class CreateBillHandler : IRequestHandler<CreateBillCommand, BillDto>
         if (!clientExists)
             throw new KeyNotFoundException($"Client with ID {request.Dto.ClientId} not found.");
 
+        var existingBill = await _unitOfWork.Bills.GetByClientServiceAndPeriodAsync(
+            request.Dto.ClientId, request.Dto.ServiceType, request.Dto.Period);
+        if (existingBill != null)
+            throw new InvalidOperationException(
+                $"A bill already exists for client {request.Dto.ClientId}, service {request.Dto.ServiceType}, period {request.Dto.Period}.");
+
         var bill = _mapper.Map<Bill>(request.Dto);
 
         await _unitOfWork.Bills.AddAsync(bill);
